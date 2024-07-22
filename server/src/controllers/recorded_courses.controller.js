@@ -1,9 +1,9 @@
 import {asyncHandler} from '../utils/asyncHandler.js'
 import {apiError} from "../utils/apiError.js"
 import {apiResponse} from "../utils/apiResponse.js"
-import {course} from "../models/courses.model.js"
+import {recorded_courses} from "../models/recorded_courses.model.js"
 
-const course=asyncHandler(async(req,res)=>{
+const get_course=asyncHandler(async(req,res)=>{
     const {course,link,teacher}=req.body;
     
     if(!(course && link)){
@@ -11,7 +11,7 @@ const course=asyncHandler(async(req,res)=>{
     }
 
     try{
-        const data=new course({
+        const data=new recorded_courses({
             course,
             link,
             teacher
@@ -25,5 +25,5 @@ const course=asyncHandler(async(req,res)=>{
 })
 
 export default{
-    course,
+    get_course,
 }
