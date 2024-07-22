@@ -32,11 +32,6 @@ const add_learners = asyncHandler(async (req, res) => {
     }
 });
 
-export {
-    add_learners,
-}
-
-
 const get_learners=asyncHandler(async(req,res)=>{
     try{
         const page=parseInt(req.query.page)||1;
@@ -63,5 +58,6 @@ const get_learners=asyncHandler(async(req,res)=>{
     }
 });
 export{
+    add_learners,
     get_learners,
 }
