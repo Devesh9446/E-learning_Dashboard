@@ -35,3 +35,33 @@ const add_learners = asyncHandler(async (req, res) => {
 export {
     add_learners,
 }
+
+
+const get_learners=asyncHandler(async(req,res)=>{
+    try{
+        const page=parseInt(req.query.page)||1;
+        const limit=parseInt(req.query.limlt)||10;
+        const skip=(page-1)*limit;
+
+        const allLearners=await learners.find().skip(skip).limit(limit);
+        const totalLearners=await learners.countDocuments();
+        const totalPages=Math.ceil(totalLearners/limit);
+
+        res.status(200).json(new apiResponse(200,{
+            learners:allLearners,
+            totalLearners,
+            totalPages,
+            currentPage:page,
+            limit
+
+        },"Learners fetched successfully"));
+
+    }catch(error){
+        throw new apiError(500,`Error:${error.message}`);
+
+
+    }
+});
+export{
+    get_learners,
+}
