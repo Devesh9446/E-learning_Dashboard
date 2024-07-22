@@ -14,4 +14,4 @@ const course_schema=new mongoose.Schema({
     },
 },{timestamps:true})
 
-export const course = mongoose.model("course",course_schema)
+export const recorded_courses= mongoose.model("course",course_schema)
