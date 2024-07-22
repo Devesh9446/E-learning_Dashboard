@@ -57,10 +57,6 @@ const get_learners=asyncHandler(async(req,res)=>{
 
     }
 });
-export{
-    add_learners,
-    get_learners,
-}
 
 const delete_learners = asyncHandler(async (req, res) => {
     const { ids } = req.body; 
@@ -83,6 +79,7 @@ const delete_learners = asyncHandler(async (req, res) => {
 });
 
 export {
-    
+    add_learners,
+    get_learners,
     delete_learners
 };
