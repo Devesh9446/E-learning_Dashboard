@@ -4,7 +4,7 @@ import {add_learners} from '../controllers/learners.controllers.js'
 import {get_learners} from '../controllers/learners.controllers.js'
 import {delete_learners} from '../controllers/learners.controllers.js'
 
-import {get_course} from '../controllers/recorded_courses.controller.js'
+// import {get_course} from '../controllers/recorded_courses.c/ontroller.js'
 
 import {get_income} from "../controllers/dashboard.controller.js"
 
