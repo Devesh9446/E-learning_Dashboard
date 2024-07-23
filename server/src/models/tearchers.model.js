@@ -21,7 +21,10 @@ const teachers_schema=new mongoose.Schema({
         type:Number,
         required:true,
     },
-
+    month:{
+        type:String,
+        required:true,
+    }
 },{timestamps:true})
 
 export const teachers = mongoose.model("learners",teachers_schema)
