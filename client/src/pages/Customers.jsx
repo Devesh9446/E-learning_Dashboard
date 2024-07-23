@@ -131,7 +131,7 @@ const Customers = () => {
           />
           <Popconfirm
             title="Are you sure to delete this learner?"
-            onConfirm={() => handleDelete([record.id])}
+            onConfirm={() => handleDelete([record._id])} // Ensure correct ID reference
             okText="Yes"
             okButtonProps={{
               style: {
@@ -216,7 +216,7 @@ const Customers = () => {
           dataSource={customersData}
           columns={columns}
           pagination={{ pageSize: 5 }}
-          rowKey="id"
+          rowKey="_id" // Ensure rowKey matches your data
           style={{ width: '100%' }}
           rowClassName="ant-table-row"
         />
