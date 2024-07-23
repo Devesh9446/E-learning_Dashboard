@@ -1,132 +1,197 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, Form, Input } from 'antd';
-import { GridComponent, ColumnsDirective, ColumnDirective, Page, Selection, Inject, Edit, Toolbar, Sort, Filter } from '@syncfusion/ej2-react-grids';
+import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import axios from 'axios';
+import { Button, Modal, Form, Input, message, Table, Space, Popconfirm } from 'antd';
 import { Header } from '../components';
-import { customersData, customersGrid } from '../data/dummy';
 
 const Customers = () => {
   const [customersData, setCustomersData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-  useEffect(() => {
-    const fetchCustomersData = async () => {
-      try {
-        const response = customersData;
-        setCustomersData(response.data);
-      } catch (error) {
-        console.error('Error fetching customers data:', error);
+  // Fetch customers data from API
+  const fetchCustomersData = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/v1/users/learner');
+      if (response.status === 200 && response.data.success) {
+        setCustomersData(response.data.data); // Use the 'data' array from the response
+      } else {
+        message.error('Failed to fetch customer data');
       }
-    };
+    } catch (error) {
+      console.error('Error fetching customers data:', error);
+      message.error('Failed to fetch customer data');
+    }
+  };
 
+  // Fetch data on component mount
+  useEffect(() => {
     fetchCustomersData();
   }, []);
 
+  // Show modal for adding a learner
   const showModal = () => {
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
-    form
-      .validateFields()
-      .then(values => {
-        form.resetFields();
+  // Handle modal OK button click
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const response = await axios.post('http://localhost:8000/api/v1/users/learner', values);
+
+      if (response.status === 201 && response.data.success) {
+        message.success(response.data.message); // Display success message
         setIsModalVisible(false);
-        console.log('Form values:', values);
-        // Add logic to handle form submission, e.g., updating customersData
-      })
-      .catch(info => {
-        console.log('Validate Failed:', info);
-      });
+        form.resetFields();
+        fetchCustomersData(); // Fetch updated data
+      } else {
+        message.error(response.data.message);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Validation Failed');
+      }
+    }
   };
 
+  // Handle modal Cancel button click
   const handleCancel = () => {
     setIsModalVisible(false);
+    form.resetFields();
   };
 
-  const selectionsettings = { persistSelection: true };
-  const toolbarOptions = ['Delete'];
-  const editing = { allowDeleting: true, allowEditing: true };
+  // Handle delete selected records
+  const handleDelete = async (ids) => {
+    try {
+      const response = await axios.delete('http://localhost:8000/api/v1/users/learner', { data: { ids } });
+
+      if (response.status === 200 && response.data.success) {
+        message.success(response.data.message);
+        fetchCustomersData(); // Fetch updated data after deletion
+        setSelectedRowKeys([]);
+      } else {
+        message.error(response.data.message);
+      }
+    } catch (error) {
+      console.error('Error deleting records:', error);
+      message.error('Failed to delete records');
+    }
+  };
+
+  // Table columns definition
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      align: 'center',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      sorter: (a, b) => a.email.localeCompare(b.email),
+      align: 'center',
+    },
+    {
+      title: 'Contact',
+      dataIndex: 'contact',
+      key: 'contact',
+      align: 'center',
+    },
+    {
+      title: 'Course',
+      dataIndex: 'course',
+      key: 'course',
+      align: 'center',
+    },
+    {
+      title: 'Fee',
+      dataIndex: 'fee',
+      key: 'fee',
+      align: 'center',
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (text, record) => (
+        <Space size="middle">
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            // onClick={() => handleEdit(record)}
+          />
+          <Popconfirm
+            title="Are you sure to delete this learner?"
+            onConfirm={() => handleDelete([record.id])}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ),
+      align: 'center',
+    },
+  ];
 
   return (
-    <div className="m-2 md:m-10 mt-24 p-2 md:p-10 bg-rgb(3,201,215) rounded-3xl">
+    <div className="m-2 md:m-10 mt-24 p-2 md:p-10 bg-white rounded-3xl shadow-lg">
       <Header category="Page" title="Customers" />
-      <Button type="primary" onClick={showModal} style={{ marginBottom: '10px', backgroundColor: 'rgb(3,201,215)', borderColor: 'rgb(3,201,215)' }}>
-        Open Modal
+      <Button
+        type="primary"
+        onClick={showModal}
+        style={{
+          marginBottom: '10px',
+          backgroundColor: '#1890ff',
+          borderColor: '#1890ff',
+          borderRadius: '4px',
+          fontSize: '16px',
+        }}
+        icon={<PlusOutlined />}
+      >
+        Add Learner
       </Button>
       <Modal
-        title="Add Customer"
-        visible={isModalVisible}
+        title="Add Learner"
+        open={isModalVisible} // Changed from 'visible' to 'open'
         onOk={handleOk}
         onCancel={handleCancel}
-        okButtonProps={{ style: { backgroundColor: 'rgb(3,201,215)', borderColor: 'rgb(3,201,215)' } }}
-        cancelButtonProps={{ style: { backgroundColor: 'rgb(3,201,215)', borderColor: 'rgb(3,201,215)', color: 'white' } }}
+        okText="Submit"
+        cancelText="Cancel"
+        centered
+        style={{ top: 20 }}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          name="customerForm"
-        >
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: 'Please input the name!' }]}
-          >
+        <Form form={form} layout="vertical">
+          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please input the name!' }]}>
             <Input />
           </Form.Item>
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[{ required: true, message: 'Please input the email!', type: 'email' }]}
-          >
+          <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Please input the email!', type: 'email' }]}>
             <Input />
           </Form.Item>
-          <Form.Item
-            name="contact"
-            label="Contact"
-            rules={[{ required: true, message: 'Please input the contact number!' }]}
-          >
+          <Form.Item name="contact" label="Contact" rules={[{ required: true, message: 'Please input the contact!' }]}>
             <Input />
           </Form.Item>
-          <Form.Item
-            name="learnerId"
-            label="Learner's ID"
-            rules={[{ required: true, message: 'Please input the learner\'s ID!' }]}
-          >
+          <Form.Item name="course" label="Course" rules={[{ required: true, message: 'Please input the course!' }]}>
             <Input />
           </Form.Item>
-          <Form.Item
-            name="course"
-            label="Course"
-            rules={[{ required: true, message: 'Please input the course!' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="fees"
-            label="Fees"
-            rules={[{ required: true, message: 'Please input the fees!' }]}
-          >
+          <Form.Item name="fee" label="Fee" rules={[{ required: true, message: 'Please input the fee!' }]}>
             <Input />
           </Form.Item>
         </Form>
       </Modal>
-      <GridComponent
+      <Table
         dataSource={customersData}
-        enableHover={false}
-        allowPaging
-        pageSettings={{ pageCount: 5 }}
-        selectionSettings={selectionsettings}
-        toolbar={toolbarOptions}
-        editSettings={editing}
-        allowSorting
-      >
-        <ColumnsDirective>
-          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-          {customersGrid.map((item, index) => <ColumnDirective key={index} {...item} />)}
-        </ColumnsDirective>
-        <Inject services={[Page, Selection, Toolbar, Edit, Sort, Filter]} />
-      </GridComponent>
+        columns={columns}
+        pagination={{ pageSize: 5 }}
+        rowKey="id"
+        style={{ width: '100%' }}
+      />
     </div>
   );
 };
