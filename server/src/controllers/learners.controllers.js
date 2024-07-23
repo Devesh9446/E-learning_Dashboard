@@ -10,7 +10,7 @@ const add_learners = asyncHandler(async (req, res) => {
     if (!(name && email && contact && course && fee)) {
         throw new apiError(400, "All fields are required");
     }
-
+  
     const existingLearner = await learners.findOne({ email });
     if (existingLearner) {
         return res.status(400).json(new apiResponse(400, {}, "User already exists"));
@@ -42,19 +42,18 @@ const get_learners=asyncHandler(async(req,res)=>{
         const totalLearners=await learners.countDocuments();
         const totalPages=Math.ceil(totalLearners/limit);
 
-        res.status(200).json(new apiResponse(200,{
+        const data={
             learners:allLearners,
             totalLearners,
             totalPages,
             currentPage:page,
             limit
+        }
 
-        },"Learners fetched successfully"));
+        res.status(200).json(new apiResponse(200,data,"Learners fetched successfully"));
 
     }catch(error){
         throw new apiError(500,`Error:${error.message}`);
-
-
     }
 });
 
