@@ -11,22 +11,25 @@ const add_learners = asyncHandler(async (req, res) => {
         throw new apiError(400, "All fields are required");
     }
     
-    // try{
-    //     const data=new income({
-    //         type:"student",
-    //         income:fee,
-    //         // month:currentDate.getMonth() + 1,
-    //         // year:currentDate.getFullYear(),
-    //     })
+    const currentDate = new Date();
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
 
-    //     await data.save();
-    // }catch(error){
-    //     throw new apiError(500, `Error: ${error.message}`);
-    // }
-    // const existingLearner = await learners.findOne({ email , course });
-    // if (existingLearner) {
-    //     return res.status(400).json(new apiResponse(400, {}, "User already exists"));
-    // }
+    if(!(month && year)){
+        throw new apiError(404,"Month and year Required");
+    }
+
+    try{
+        const data=new income({
+            type:"student",
+            income:fee,
+            month:month,
+            year:year,
+        })
+        await data.save();
+    }catch(error){
+        throw new apiError(400,`Error:${error.message}`);
+    }
 
     try {
         const newLearner = new learners({

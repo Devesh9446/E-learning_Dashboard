@@ -30,6 +30,6 @@ const get_income=asyncHandler(async(req,res)=>{
 })
 
 
-export{
+export {
     get_income,
 }
