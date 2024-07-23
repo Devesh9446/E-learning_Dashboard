@@ -7,11 +7,9 @@ import {income} from '../models/income.model.js'
 const add_learners = asyncHandler(async (req, res) => {
     console.log(req.body);
     const { name, email, contact, course, fee } = req.body;
-
     if (!(name && email && contact && course && fee)) {
         throw new apiError(400, "All fields are required");
     }
-    
     try{
         const data=new income({
             type:"student",
@@ -19,7 +17,6 @@ const add_learners = asyncHandler(async (req, res) => {
             month:currentDate.getMonth() + 1,
             year:currentDate.getFullYear(),
         })
-
         await data.save();
     }catch(error){
         throw new apiError(500, `Error: ${error.message}`);
