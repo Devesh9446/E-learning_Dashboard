@@ -29,7 +29,11 @@ const get_income=asyncHandler(async(req,res)=>{
     }
 })
 
+const dashboard_details=asyncHandler(async(req,res)=>{
+
+})
 
 export {
     get_income,
+    dashboard_details
 }
