@@ -32,5 +32,4 @@ const get_income=asyncHandler(async(req,res)=>{
 
 export {
     get_income,
-
 }

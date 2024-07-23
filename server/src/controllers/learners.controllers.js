@@ -10,10 +10,26 @@ const add_learners = asyncHandler(async (req, res) => {
     if (!(name && email && contact && course && fee)) {
         throw new apiError(400, "All fields are required");
     }
-
+    
     const currentDate = new Date();
     const month = currentDate.getMonth() + 1;
     const year = currentDate.getFullYear();
+
+    if(!(month && year)){
+        throw new apiError(404,"Month and year Required");
+    }
+
+    try{
+        const data=new income({
+            type:"student",
+            income:fee,
+            month:month,
+            year:year,
+        })
+        await data.save();
+    }catch(error){
+        throw new apiError(400,`Error:${error.message}`);
+    }
 
     try {
         const newLearner = new learners({
@@ -22,17 +38,14 @@ const add_learners = asyncHandler(async (req, res) => {
             contact,
             course,
             fee,
-            month,
-            year
         });
 
         const resp = await newLearner.save();
-        res.status(201).json(new apiResponse(201, resp, "Learner registered successfully"));
+        res.status(201).json(new apiResponse(201, resp, "Applicant registered successfully"));
     } catch (error) {
         throw new apiError(500, `Error: ${error.message}`);
     }
 });
-
 
 const get_learners=asyncHandler(async(req,res)=>{
     try{
