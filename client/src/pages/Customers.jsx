@@ -127,7 +127,7 @@ const Customers = () => {
         <Space size="middle">
           <Button
             type="link"
-            icon={<EditOutlined />}
+            icon={<EditOutlined style={{ color: 'rgb(3,201,215)' }} />}
           />
           <Popconfirm
             title="Are you sure to delete this learner?"
@@ -135,8 +135,8 @@ const Customers = () => {
             okText="Yes"
             okButtonProps={{
               style: {
-                backgroundColor: 'rgb(24, 144, 255)',
-                borderColor: 'rgb(24, 144, 255)',
+                backgroundColor: 'rgb(3,201,215)',
+                borderColor: 'rgb(3,201,215)',
               }}}
             cancelText="No"
           >
@@ -156,8 +156,8 @@ const Customers = () => {
         onClick={showModal}
         style={{
           marginBottom: '10px',
-          backgroundColor: 'rgb(24, 144, 255)',
-          borderColor: '#1890ff',
+          backgroundColor: 'rgb(3,201,215)',
+          borderColor: 'rgb(3,201,215)',
           borderRadius: '4px',
           fontSize: '16px',
           display: 'flex',
@@ -178,14 +178,14 @@ const Customers = () => {
         style={{ top: 20 }}
         okButtonProps={{
           style: {
-            backgroundColor: 'rgb(24, 144, 255)',
-            borderColor: 'rgb(24, 144, 255)',
+            backgroundColor: 'rgb(3,201,215)',
+            borderColor: 'rgb(3,210,215)',
           },
         }}
         cancelButtonProps={{
           style: {
-            color: 'rgb(24, 144, 255)',
-            borderColor: 'rgb(24, 144, 255)',
+            color: 'rgb(3,201,215)',
+            borderColor: 'rgb(3,201,215)',
           },
         }}
       >
