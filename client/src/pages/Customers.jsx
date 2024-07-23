@@ -6,10 +6,12 @@ import { Header } from '../components';
 
 const Customers = () => {
   const [customersData, setCustomersData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
 
   // Fetch customers data from API
   const fetchCustomersData = async () => {
@@ -18,6 +20,7 @@ const Customers = () => {
       const response = await axios.get('http://localhost:8000/api/v1/users/learner');
       if (response.status === 200 && response.data.success) {
         setCustomersData(response.data.data.learners);
+        setFilteredData(response.data.data.learners);
       } else {
         message.error('Failed to fetch customer data');
       }
@@ -86,6 +89,14 @@ const Customers = () => {
     }
   };
 
+  // Handle search input change
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchText(value);
+    const filtered = customersData.filter(customer => customer.name.toLowerCase().includes(value.toLowerCase()));
+    setFilteredData(filtered);
+  };
+
   // Table columns definition
   const columns = [
     {
@@ -131,7 +142,7 @@ const Customers = () => {
           />
           <Popconfirm
             title="Are you sure to delete this learner?"
-            onConfirm={() => handleDelete([record.id])}
+            onConfirm={() => handleDelete([record._id])} // Ensure correct ID reference
             okText="Yes"
             okButtonProps={{
               style: {
@@ -151,22 +162,29 @@ const Customers = () => {
   return (
     <div className="m-2 md:m-10 mt-24 p-2 md:p-10 bg-white rounded-3xl shadow-lg">
       <Header category="Page" title="Customers" />
-      <Button
-        type="primary"
-        onClick={showModal}
-        style={{
-          marginBottom: '10px',
-          backgroundColor: 'rgb(3,201,215)',
-          borderColor: 'rgb(3,201,215)',
-          borderRadius: '4px',
-          fontSize: '16px',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-        icon={<PlusOutlined />}
-      >
-        Add Learner
-      </Button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <Button
+          type="primary"
+          onClick={showModal}
+          style={{
+            backgroundColor: 'rgb(3,201,215)',
+            borderColor: 'rgb(3,201,215)',
+            borderRadius: '4px',
+            fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+          icon={<PlusOutlined />}
+        >
+          Add Learner
+        </Button>
+        <Input
+          placeholder="Search by Name"
+          value={searchText}
+          onChange={handleSearch}
+          style={{ width: '300px' }}
+        />
+      </div>
       <Modal
         title="Add Learner"
         visible={isModalVisible}
@@ -213,10 +231,10 @@ const Customers = () => {
         </div>
       ) : (
         <Table
-          dataSource={customersData}
+          dataSource={filteredData}
           columns={columns}
           pagination={{ pageSize: 5 }}
-          rowKey="id"
+          rowKey="_id" // Ensure rowKey matches your data
           style={{ width: '100%' }}
           rowClassName="ant-table-row"
         />
