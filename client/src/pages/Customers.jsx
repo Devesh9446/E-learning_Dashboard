@@ -8,10 +8,12 @@ const Customers = () => {
   const [customersData, setCustomersData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [editForm] = Form.useForm();
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
+  const [currentRecord, setCurrentRecord] = useState(null);
 
   // Fetch customers data from API
   const fetchCustomersData = async () => {
@@ -42,7 +44,7 @@ const Customers = () => {
     setIsModalVisible(true);
   };
 
-  // Handle modal OK button click
+  // Handle modal OK button click for adding learner
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
@@ -71,6 +73,42 @@ const Customers = () => {
     form.resetFields();
   };
 
+  // Handle edit modal OK button click
+  const handleEditOk = async () => {
+    try {
+      const values = await editForm.validateFields();
+      const response = await axios.put(`http://localhost:8000/api/v1/users/learner/${currentRecord._id}`, values);
+
+      if (response.status === 200 && response.data.success) {
+        message.success(response.data.message);
+        setIsEditModalVisible(false);
+        editForm.resetFields();
+        fetchCustomersData();
+      } else {
+        message.error(response.data.message);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Validation Failed');
+      }
+    }
+  };
+
+  // Handle edit modal Cancel button click
+  const handleEditCancel = () => {
+    setIsEditModalVisible(false);
+    editForm.resetFields();
+  };
+
+  // Show edit modal and set current record
+  const showEditModal = (record) => {
+    setCurrentRecord(record);
+    editForm.setFieldsValue(record);
+    setIsEditModalVisible(true);
+  };
+
   // Handle delete selected records
   const handleDelete = async (ids) => {
     try {
@@ -79,7 +117,6 @@ const Customers = () => {
       if (response.status === 200 && response.data.success) {
         message.success(response.data.message);
         fetchCustomersData();
-        setSelectedRowKeys([]);
       } else {
         message.error(response.data.message);
       }
@@ -139,6 +176,7 @@ const Customers = () => {
           <Button
             type="link"
             icon={<EditOutlined style={{ color: 'rgb(3,201,215)' }} />}
+            onClick={() => showEditModal(record)}
           />
           <Popconfirm
             title="Are you sure to delete this learner?"
@@ -225,20 +263,58 @@ const Customers = () => {
           </Form.Item>
         </Form>
       </Modal>
-      {loading ? (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <Spin size="large" />
-        </div>
-      ) : (
+      <Modal
+        title="Edit Learner"
+        visible={isEditModalVisible}
+        onOk={handleEditOk}
+        onCancel={handleEditCancel}
+        okText="Submit"
+        cancelText="Cancel"
+        centered
+        style={{ top: 20 }}
+        okButtonProps={{
+          style: {
+            backgroundColor: 'rgb(3,201,215)',
+            borderColor: 'rgb(3,210,215)',
+          },
+        }}
+        cancelButtonProps={{
+          style: {
+            color: 'rgb(3,201,215)',
+            borderColor: 'rgb(3,201,215)',
+          },
+        }}
+      >
+        <Form form={editForm} layout="vertical">
+          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please input the name!' }]}>
+            <Input placeholder="Enter name" />
+          </Form.Item>
+          <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Please input the email!', type: 'email' }]}>
+            <Input placeholder="Enter email" />
+          </Form.Item>
+          <Form.Item name="contact" label="Contact" rules={[{ required: true, message: 'Please input the contact!' }]}>
+            <Input placeholder="Enter contact" />
+          </Form.Item>
+          <Form.Item name="course" label="Course" rules={[{ required: true, message: 'Please input the course!' }]}>
+            <Input placeholder="Enter course" />
+          </Form.Item>
+          <Form.Item name="fee" label="Fee" rules={[{ required: true, message: 'Please input the fee!' }]}>
+            <Input placeholder="Enter fee" />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Spin spinning={loading}>
         <Table
-          dataSource={filteredData}
+          rowKey="_id"
           columns={columns}
-          pagination={{ pageSize: 5 }}
-          rowKey="_id" // Ensure rowKey matches your data
-          style={{ width: '100%' }}
-          rowClassName="ant-table-row"
+          dataSource={filteredData}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '30'],
+          }}
         />
-      )}
+      </Spin>
     </div>
   );
 };
