@@ -20,10 +20,6 @@ const teachers_schema=new mongoose.Schema({
     fee:{
         type:Number,
         required:true,
-    },
-    month:{
-        type:String,
-        required:true,
     }
 },{timestamps:true})
 
