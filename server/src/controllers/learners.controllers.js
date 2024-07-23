@@ -1,7 +1,8 @@
 import {asyncHandler} from '../utils/asyncHandler.js'
-import {apiError} from "../utils/apiError.js"
+import {apiError} from "../utils/apiError.js" 
 import {apiResponse} from "../utils/apiResponse.js"
 import {learners} from '../models/learners.model.js'
+import {income} from '../models/income.model.js'
 
 const add_learners = asyncHandler(async (req, res) => {
     console.log(req.body);
@@ -10,11 +11,23 @@ const add_learners = asyncHandler(async (req, res) => {
     if (!(name && email && contact && course && fee)) {
         throw new apiError(400, "All fields are required");
     }
-  
-    const existingLearner = await learners.findOne({ email });
-    if (existingLearner) {
-        return res.status(400).json(new apiResponse(400, {}, "User already exists"));
+    
+    try{
+        const data=new income({
+            type:"student",
+            income:fee,
+            month:currentDate.getMonth() + 1,
+            year:currentDate.getFullYear(),
+        })
+
+        await data.save();
+    }catch(error){
+        throw new apiError(500, `Error: ${error.message}`);
     }
+    // const existingLearner = await learners.findOne({ email , course });
+    // if (existingLearner) {
+    //     return res.status(400).json(new apiResponse(400, {}, "User already exists"));
+    // }
 
     try {
         const newLearner = new learners({
