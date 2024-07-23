@@ -91,9 +91,35 @@ const delete_learners = asyncHandler(async (req, res) => {
         throw new apiError(500, `Error: ${error.message}`);
     }
 });
+const update_learner = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { name, email, contact, course, fee } = req.body;
+
+    if (!(name && email && contact && course && fee)) {
+        throw new apiError(400, "All fields are required");
+    }
+
+    try {
+        const updatedLearner = await learners.findByIdAndUpdate(
+            id,
+            { name, email, contact, course, fee },
+            { new: true, runValidators: true } // Return the updated document and validate the updated fields
+        );
+
+        if (!updatedLearner) {
+            return res.status(404).json(new apiResponse(404, {}, "Learner not found"));
+        }
+
+        res.status(200).json(new apiResponse(200, updatedLearner, "Learner updated successfully"));
+    } catch (error) {
+        throw new apiError(500, `Error: ${error.message}`);
+    }
+});
+
 
 export {
     add_learners,
     get_learners,
-    delete_learners
+    delete_learners,
+    update_learner
 };
