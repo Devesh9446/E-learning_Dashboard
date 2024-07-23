@@ -3,7 +3,7 @@ import {apiError} from "../utils/apiError.js"
 import {apiResponse} from "../utils/apiResponse.js"
 import {income} from "../models/income.model.js"
 
-const get_income=asyncHandler(async(req,req)=>{
+const get_income=asyncHandler(async(req,res)=>{
     const {year}=req.body;
     if(!(year)){
         throw new apiError(400,"Month and year is required");
@@ -30,7 +30,6 @@ const get_income=asyncHandler(async(req,req)=>{
 })
 
 
-export default{
+export{
     get_income,
-
 }
