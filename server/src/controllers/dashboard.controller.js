@@ -18,8 +18,8 @@ const get_income=asyncHandler(async(req,req)=>{
                 teacher_income:teacher_data,
             }
 
-            res.status(200).json(200,data,"Income send Successfully");
-            
+            res.status(200).json(new apiResponse(200,data,"Income send Successfully"));
+
         }catch(error){
             throw new apiError(400,`ERROR:${error.message}`)
         }
@@ -28,6 +28,7 @@ const get_income=asyncHandler(async(req,req)=>{
         throw new apiError(400,`ERROR:${error.message}`)
     }
 })
+
 
 export default{
     get_income,
