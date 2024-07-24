@@ -23,4 +23,4 @@ const learners_schema=new mongoose.Schema({
     },
 },{timestamps:true})
 
-export const learners = mongoose.model("learners",learners_schema)
+export const learners = mongoose.model("learner",learners_schema)
