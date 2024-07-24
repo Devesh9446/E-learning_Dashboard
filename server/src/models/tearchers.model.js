@@ -20,8 +20,7 @@ const teachers_schema=new mongoose.Schema({
     fee:{
         type:Number,
         required:true,
-    },
-
+    }
 },{timestamps:true})
 
 export const teachers = mongoose.model("learners",teachers_schema)

@@ -21,7 +21,6 @@ const learners_schema=new mongoose.Schema({
         type:Number,
         required:true,
     },
-
 },{timestamps:true})
 
 export const learners = mongoose.model("learners",learners_schema)
