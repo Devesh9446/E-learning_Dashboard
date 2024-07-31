@@ -4,7 +4,7 @@ import {apiResponse} from "../utils/apiResponse.js"
 import {income} from "../models/income.model.js"
 import {recorded_courses} from "../models/recorded_courses.model.js"
 import {learners} from "../models/learners.model.js"
-import {teachers} from "../models/tearchers.model.js"
+import {teachers} from "../models/teachers.model.js"
 
 const get_income=asyncHandler(async(req,res)=>{
     const {year}=req.body;

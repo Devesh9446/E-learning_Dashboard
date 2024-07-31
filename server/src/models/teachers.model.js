@@ -7,7 +7,7 @@ const teachers_schema=new mongoose.Schema({
     },
     email:{
         type:String,
-        required:true,
+        required:true, 
     },
     contact:{
         type:Number,
@@ -23,4 +23,4 @@ const teachers_schema=new mongoose.Schema({
     }
 },{timestamps:true})
 
-export const teachers = mongoose.model("learners",teachers_schema)
+export const teachers = mongoose.model("teachers",teachers_schema)
