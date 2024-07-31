@@ -3,12 +3,12 @@ import {Router} from 'express'
 import {add_learners} from '../controllers/learners.controllers.js'
 import {get_learners} from '../controllers/learners.controllers.js'
 import {delete_learners} from '../controllers/learners.controllers.js'
-import { update_learner } from '../controllers/learners.controllers.js'
+import {update_learner } from '../controllers/learners.controllers.js'
 
 import {add_teacher} from '../controllers/teachers.controller.js'
 import {get_teacher} from '../controllers/teachers.controller.js'
 import {delete_teacher} from '../controllers/teachers.controller.js'
-import { update_teacher} from '../controllers/teachers.controller.js'
+import {update_teacher} from '../controllers/teachers.controller.js'
 
 import {get_income} from "../controllers/dashboard.controller.js"
 import {dashboard_details} from "../controllers/dashboard.controller.js"
@@ -26,6 +26,7 @@ router.route('/teacher').delete(delete_teacher)
 router.route('/teacher/:id').put(update_teacher);
 
 router.route('/income').get(get_income)
+router.route('/dashboard').get(dashboard_details)
 router.route('/dashboard').get(dashboard_details)
 
 export default router

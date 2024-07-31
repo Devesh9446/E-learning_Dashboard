@@ -53,5 +53,5 @@ const dashboard_details=asyncHandler(async(req,res)=>{
 
 export {
     get_income,
-    dashboard_details
+    dashboard_details  
 }
