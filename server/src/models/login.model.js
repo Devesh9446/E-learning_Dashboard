@@ -17,6 +17,10 @@ const user_Schema=new mongoose.Schema({
         type:String,
         required:true,
     },
+    logout:{
+        type:Boolean,
+        default:false,
+    }
 },{timestamps:true})
 
 export const user=mongoose.model("user",user_Schema)
