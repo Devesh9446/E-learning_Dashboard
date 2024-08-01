@@ -7,7 +7,7 @@ import {learners} from "../models/learners.model.js"
 import {teachers} from "../models/teachers.model.js"
 
 const get_income=asyncHandler(async(req,res)=>{
-    const {year}=req.body;
+    const {year}=req.params;
     if(!(year)){
         throw new apiError(400,"Month and year is required");
     }
@@ -32,7 +32,7 @@ const get_income=asyncHandler(async(req,res)=>{
     }
 })
 
-const dashboard_details=asyncHandler(async(req,res)=>{
+const dashboard_details=asyncHandler(async(req,res)=>{ 
     
     try{
         const total_learners=await learners.countDocuments();
