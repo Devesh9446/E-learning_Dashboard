@@ -519,6 +519,19 @@ export const links = [
     ],
   },
   {
+    title: 'Courses',
+    links: [
+      {
+        name: 'Live Classes',
+        icon: <AiOutlineAreaChart />,
+      },
+      {
+        name: 'Recorded Courses',
+        icon: <AiOutlineStock />,
+      },
+    ],
+  },
+  {
     title: 'Charts',
     links: [
       {
