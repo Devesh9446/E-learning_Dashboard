@@ -4,6 +4,16 @@ import {apiResponse} from "../utils/apiResponse.js"
 import {recorded_courses} from "../models/recorded_courses.model.js"
 
 const get_course=asyncHandler(async(req,res)=>{
+    try{
+        const courses=await recorded_courses.find();
+        res.status(200).json(new apiResponse(200,courses,"course fetched successfully"));
+    }catch(error){
+        throw new apiError(404,`error:${error.message}`);
+    }
+    
+})
+
+const create_course=asyncHandler(async(req,res)=>{
     const {course,link,teacher}=req.body;
     
     if(!(course && link)){
@@ -26,4 +36,5 @@ const get_course=asyncHandler(async(req,res)=>{
 
 export default{
     get_course,
+    create_course
 }

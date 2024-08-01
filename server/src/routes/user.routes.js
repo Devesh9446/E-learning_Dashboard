@@ -2,6 +2,7 @@ import {Router} from 'express'
 
 import {login_user} from '../controllers/login.controllers.js'
 import {signUp_user} from '../controllers/login.controllers.js'
+import {logOut_user} from '../controllers/login.controllers.js'
 
 import {add_learners} from '../controllers/learners.controllers.js'
 import {get_learners} from '../controllers/learners.controllers.js'
@@ -15,6 +16,9 @@ import {update_teacher} from '../controllers/teachers.controller.js'
 
 import {get_income} from "../controllers/dashboard.controller.js"
 import {dashboard_details} from "../controllers/dashboard.controller.js" 
+
+import {create_course} from "../controllers/recorded_courses.controller.js"
+import {get_course} from "../controllers/recorded_courses.controller.js"
 
 const router =Router()
 
@@ -32,6 +36,10 @@ router.route('/income/:year').get(get_income)
 router.route('/dashboard').get(dashboard_details)
 
 router.route('/login').post(login_user)
-router.route('/login').post(signUp_user)
+router.route('/signUp').post(signUp_user)
+router.route('/logOut').post(logOut_user)
+
+router.route('/courses').post(create_course)
+router.route('/courses').get(get_course)
 
 export default router
