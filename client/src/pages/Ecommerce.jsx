@@ -1,13 +1,11 @@
-import {React,useState,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { BsCurrencyDollar } from 'react-icons/bs';
 import { GoPrimitiveDot } from 'react-icons/go';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
-
 import { Stacked, Pie, Button, LineChart, SparkLine } from '../components';
-import { earningData,  recentTransactions,  dropdownData, SparklineAreaData, ecomPieChartData } from '../data/dummy';
+import { earningData, recentTransactions, dropdownData, SparklineAreaData, ecomPieChartData } from '../data/dummy';
 import { useStateContext } from '../contexts/ContextProvider';
-
-import axios from "axios";
+import axios from 'axios';
 
 const DropDown = ({ currentMode }) => (
   <div className="w-28 border-1 border-color px-2 py-1 rounded-md">
@@ -22,22 +20,35 @@ const DropDown = ({ currentMode }) => (
     />
   </div>
 );
- 
+
 const Ecommerce = () => {
   const { currentColor, currentMode } = useStateContext();
 
   const [income, setIncome] = useState(null);
-  const [dashboard, setDashboard] = useState(null); 
+  const [earnings, setEarnings] = useState(0); // Added state for earnings
+  const [learners, setLearners] = useState([]);
+  const [instructors, setInstructors] = useState([]);
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const incomeResponse = await axios.get('http://localhost:8000/api/v1/users/income/2024');
         setIncome(incomeResponse.data.data);
-        console.log(incomeResponse.data.data);
+        console.log('Income Response:', incomeResponse.data.data);
+
         const dashboardResponse = await axios.get('http://localhost:8000/api/v1/users/dashboard');
-        setDashboard(dashboardResponse.data);
-        console.log(dashboardResponse.data.data);
+        console.log('Dashboard Response:', dashboardResponse.data);
+
+        if (dashboardResponse.data && dashboardResponse.data.data) {
+          const { learners, teachers, courses, earnings } = dashboardResponse.data.data;
+          setLearners(learners || []);
+          setInstructors(teachers || []); // Adjusted to 'teachers'
+          setCourses(courses || []);
+          setEarnings(earnings || 0);
+        } else {
+          console.error('Data is not found in the response');
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -53,7 +64,7 @@ const Ecommerce = () => {
           <div className="flex justify-between items-center">
             <div>
               <p className="font-bold text-gray-400">Earnings</p>
-              <p className="text-2xl">$63,448.78</p>
+              <p className="text-2xl">${earnings.toLocaleString()}</p> {/* Display earnings */}
             </div>
             <button
               type="button"
@@ -64,12 +75,11 @@ const Ecommerce = () => {
             </button>
           </div>
           <div className="mt-6">
-            <Button
+            {/* <Button
               color="white"
               bgColor={currentColor}
-              text="Download"
               borderRadius="10px"
-            />
+            /> */}
           </div>
         </div>
         <div className="flex m-3 flex-wrap justify-center gap-6 items-center">
@@ -147,7 +157,7 @@ const Ecommerce = () => {
             <div className="flex justify-between items-center">
               <p className="font-semibold text-white text-2xl">Earnings</p>
               <div>
-                <p className="text-2xl text-white font-semibold mt-8">$63,448.78</p>
+                <p className="text-2xl text-white font-semibold mt-8">${earnings.toLocaleString()}</p> {/* Display earnings */}
                 <p className="text-gray-200">Monthly revenue</p>
               </div>
             </div>
@@ -181,7 +191,7 @@ const Ecommerce = () => {
                   <button
                     type="button"
                     style={{ color: item.iconColor, backgroundColor: item.iconBg }}
-                    className="text-2xl rounded-lg p-4 hover:drop-shadow-xl"
+                    className="text-2xl opacity-0.9 rounded-full p-4 hover:drop-shadow-xl"
                   >
                     {item.icon}
                   </button>
@@ -193,25 +203,6 @@ const Ecommerce = () => {
                 <p className={`text-${item.pcColor}`}>{item.amount}</p>
               </div>
             ))}
-          </div>
-          <div className="flex justify-between items-center mt-5 border-t-1 border-color pt-5">
-            <Button
-              color="white"
-              bgColor={currentColor}
-              text="Add"
-              borderRadius="10px"
-            />
-            <p className="text-gray-400 text-sm">36 Recent Transactions</p>
-          </div>
-        </div>
-
-        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg p-6 rounded-2xl shadow-lg w-96 md:w-760">
-          <div className="flex justify-between items-center gap-2 mb-10">
-            <p className="text-xl font-semibold">Sales Overview</p>
-            <DropDown currentMode={currentMode} />
-          </div>
-          <div className="md:w-full overflow-auto">
-            <LineChart />
           </div>
         </div>
       </div>
