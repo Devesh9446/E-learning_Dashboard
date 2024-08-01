@@ -13,7 +13,11 @@ const income_Schema=new mongoose.Schema({
     month:{ 
         type:String,
         required:true,
-    }
+    },
+    year:{ 
+        type:String,
+        required:true,
+    },
 },{timestamps:true})
 
 export const income=mongoose.model("income",income_Schema)

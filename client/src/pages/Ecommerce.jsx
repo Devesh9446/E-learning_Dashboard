@@ -1,4 +1,4 @@
-import React from 'react';
+import {React,useState,useEffect} from 'react';
 import { BsCurrencyDollar } from 'react-icons/bs';
 import { GoPrimitiveDot } from 'react-icons/go';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
@@ -6,6 +6,8 @@ import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { Stacked, Pie, Button, LineChart, SparkLine } from '../components';
 import { earningData,  recentTransactions,  dropdownData, SparklineAreaData, ecomPieChartData } from '../data/dummy';
 import { useStateContext } from '../contexts/ContextProvider';
+
+import axios from "axios";
 
 const DropDown = ({ currentMode }) => (
   <div className="w-28 border-1 border-color px-2 py-1 rounded-md">
@@ -20,9 +22,29 @@ const DropDown = ({ currentMode }) => (
     />
   </div>
 );
-
+ 
 const Ecommerce = () => {
   const { currentColor, currentMode } = useStateContext();
+
+  const [income, setIncome] = useState(null);
+  const [dashboard, setDashboard] = useState(null); 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const incomeResponse = await axios.get('http://localhost:8000/api/v1/users/income/2024');
+        setIncome(incomeResponse.data.data);
+        console.log(incomeResponse.data.data);
+        const dashboardResponse = await axios.get('http://localhost:8000/api/v1/users/dashboard');
+        setDashboard(dashboardResponse.data);
+        console.log(dashboardResponse.data.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="mt-24">

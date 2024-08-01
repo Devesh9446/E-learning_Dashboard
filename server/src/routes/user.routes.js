@@ -11,7 +11,7 @@ import {delete_teacher} from '../controllers/teachers.controller.js'
 import {update_teacher} from '../controllers/teachers.controller.js'
 
 import {get_income} from "../controllers/dashboard.controller.js"
-import {dashboard_details} from "../controllers/dashboard.controller.js"
+import {dashboard_details} from "../controllers/dashboard.controller.js" 
 
 const router =Router()
 
@@ -25,8 +25,7 @@ router.route('/teacher').get(get_teacher)
 router.route('/teacher').delete(delete_teacher)
 router.route('/teacher/:id').put(update_teacher);
 
-router.route('/income').get(get_income)
-router.route('/dashboard').get(dashboard_details)
+router.route('/income/:year').get(get_income)
 router.route('/dashboard').get(dashboard_details)
 
 export default router
