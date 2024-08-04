@@ -12,7 +12,8 @@ const add_learners = asyncHandler(async (req, res) => {
     }
     
     const currentDate = new Date();
-    const month = currentDate.getMonth() + 1;
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames[currentDate.getMonth()]; 
     const year = currentDate.getFullYear();
 
     if(!(month && year)){

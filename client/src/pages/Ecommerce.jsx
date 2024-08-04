@@ -20,12 +20,16 @@ const DropDown = ({ currentMode }) => (
     />
   </div>
 );
-
+ 
 const Ecommerce = () => {
   const { currentColor, currentMode } = useStateContext();
 
-  const [income, setIncome] = useState(null);
-  const [earnings, setEarnings] = useState(0); // Added state for earnings
+  const [StudentIncome, setStudentIncome] = useState([]);
+  const [TeacherIncome, setTeacherIncome] = useState([]);
+  const [studentGraphData, setStudentGraphData] = useState([]);
+  const [teacherGraphData, setTeacherGraphData] = useState([]);
+  const [netIncomeGraphData, setNetIncomeGraphData] = useState([]);
+  const [earnings, setEarnings] = useState(0); 
   const [learners, setLearners] = useState([]);
   const [instructors, setInstructors] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -34,20 +38,21 @@ const Ecommerce = () => {
     const fetchData = async () => {
       try {
         const incomeResponse = await axios.get('http://localhost:8000/api/v1/users/income/2024');
-        setIncome(incomeResponse.data.data);
-        console.log('Income Response:', incomeResponse.data.data);
+        if (incomeResponse.data && incomeResponse.data.data) {
+          setStudentIncome(incomeResponse.data.data.student_income);
+          setTeacherIncome(incomeResponse.data.data.teacher_income);
+        } else {
+          console.error('Income data is not found in the response');
+        }
 
         const dashboardResponse = await axios.get('http://localhost:8000/api/v1/users/dashboard');
-        console.log('Dashboard Response:', dashboardResponse.data);
-
         if (dashboardResponse.data && dashboardResponse.data.data) {
-          const { learners, teachers, courses, earnings } = dashboardResponse.data.data;
+          const { learners, teachers, courses } = dashboardResponse.data.data;
           setLearners(learners || []);
-          setInstructors(teachers || []); // Adjusted to 'teachers'
+          setInstructors(teachers || []); 
           setCourses(courses || []);
-          setEarnings(earnings || 0);
         } else {
-          console.error('Data is not found in the response');
+          console.error('Dashboard data is not found in the response');
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -57,6 +62,28 @@ const Ecommerce = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const calculateTotalIncome = (data) => {
+      const incomeByMonth = data.reduce((acc, curr) => {
+        const { month, income } = curr;
+        if (!acc[month]) {
+          acc[month] = 0;
+        }
+        acc[month] += income;
+        return acc;
+      }, {});
+
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return monthNames.map((month) => ({
+        x: month,
+        y: incomeByMonth[month] || 0,
+      }));
+    };
+
+    setStudentGraphData(calculateTotalIncome(StudentIncome));
+    setTeacherGraphData(calculateTotalIncome(TeacherIncome));
+  }, [StudentIncome, TeacherIncome]);
+
   return (
     <div className="mt-24">
       <div className="flex flex-wrap lg:flex-nowrap justify-center gap-4">
@@ -64,7 +91,7 @@ const Ecommerce = () => {
           <div className="flex justify-between items-center">
             <div>
               <p className="font-bold text-gray-400">Earnings</p>
-              <p className="text-2xl">${earnings.toLocaleString()}</p> {/* Display earnings */}
+              <p className="text-2xl">${earnings.toLocaleString()}</p> 
             </div>
             <button
               type="button"
@@ -73,13 +100,6 @@ const Ecommerce = () => {
             >
               <BsCurrencyDollar />
             </button>
-          </div>
-          <div className="mt-6">
-            {/* <Button
-              color="white"
-              bgColor={currentColor}
-              borderRadius="10px"
-            /> */}
           </div>
         </div>
         <div className="flex m-3 flex-wrap justify-center gap-6 items-center">
@@ -111,11 +131,11 @@ const Ecommerce = () => {
             <div className="flex items-center gap-4">
               <p className="flex items-center gap-2 text-gray-600 hover:drop-shadow-xl">
                 <GoPrimitiveDot />
-                <span>Expense</span>
-              </p>
+                <span>Instructors</span>
+              </p> 
               <p className="flex items-center gap-2 text-green-400 hover:drop-shadow-xl">
                 <GoPrimitiveDot />
-                <span>Budget</span>
+                <span>Learners</span>
               </p>
             </div>
           </div>
@@ -142,37 +162,12 @@ const Ecommerce = () => {
                   color="white"
                   bgColor={currentColor}
                   text="Download Report"
-                  borderRadius="10px"
+                  borderRadius="10px" 
                 />
               </div>
             </div>
             <div>
               <Stacked currentMode={currentMode} width="320px" height="360px" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-6 rounded-2xl shadow-lg">
-          <div className="rounded-2xl md:w-400 p-4" style={{ backgroundColor: currentColor }}>
-            <div className="flex justify-between items-center">
-              <p className="font-semibold text-white text-2xl">Earnings</p>
-              <div>
-                <p className="text-2xl text-white font-semibold mt-8">${earnings.toLocaleString()}</p> {/* Display earnings */}
-                <p className="text-gray-200">Monthly revenue</p>
-              </div>
-            </div>
-            <div className="mt-4">
-              <SparkLine currentColor={currentColor} id="column-sparkLine" height="100px" type="Column" data={SparklineAreaData} width="320" color="rgb(242, 252, 253)" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg rounded-2xl md:w-400 p-8 m-3 flex justify-center items-center gap-10">
-            <div>
-              <p className="text-2xl font-semibold">$43,246</p>
-              <p className="text-gray-400">Yearly sales</p>
-            </div>
-            <div className="w-40">
-              <Pie id="pie-chart" data={ecomPieChartData} legendVisiblity={false} height="160px" />
             </div>
           </div>
         </div>
