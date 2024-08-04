@@ -1,8 +1,6 @@
 export { default as Ecommerce } from './Ecommerce';
-export { default as Kanban } from './Kanban';
-export { default as Orders } from './Orders';
+export { default as Todo } from './ToDo';
 export { default as Instructors } from './Instructors';
-export { default as Editor } from './Editor';
 export { default as Learners } from './Learners';
 export { default as ColorPicker } from './ColorPicker';
 export { default as Calendar } from './Calendar';
