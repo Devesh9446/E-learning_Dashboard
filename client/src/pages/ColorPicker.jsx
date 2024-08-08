@@ -1,31 +1,117 @@
-import React from 'react';
-import { ColorPickerComponent } from '@syncfusion/ej2-react-inputs';
-
+import React, { useState } from 'react';
+import axios from 'axios';
 import { Header } from '../components';
 
-const change = (args) => {
-  document.getElementById('preview').style.backgroundColor = args.currentValue.hex;
-};
+const AddCourseForm = ({ onClose }) => {
+  const [course, setCourse] = useState('');
+  const [teacher, setTeacher] = useState('');
+  const [link, setLink] = useState('');
+  const [image, setImage] = useState(null);
 
-const CustomColorPicker = ({ id, mode }) => <ColorPickerComponent id={id} mode={mode} modeSwitcher={false} inline showButtons={false} change={change} />;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-const ColorPicker = () => (
-  <div className="m-2 md:m-10 mt-24 p-2 md:p-10 bg-white rounded-3xl">
-    <Header category="App" title="Color Picker" />
-    <div className="text-center">
-      <div id="preview" />
-      <div className="flex justify-center items-center gap-20 flex-wrap">
-        <div>
-          <p className="text-2xl font-semibold mt-2 mb-4">Inline Pallete</p>
-          <CustomColorPicker id="inline-palette" mode="Palette" />
-        </div>
-        <div>
-          <p className="text-2xl font-semibold mt-2 mb-4">Inline Picker</p>
-          <CustomColorPicker id="inline-picker" mode="Picker" />
-        </div>
+    const formData = new FormData();
+    formData.append('course', course);
+    formData.append('teacher', teacher);
+    formData.append('link', link);
+    if (image) {
+      formData.append('image', image);
+    }
+
+    try {
+      // Send form data to the server
+      const response = await axios.post('http://localhost:8000/api/v1/users/courses', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Course added:', response.data);
+      // Handle success, e.g., show a success message or reset form
+
+      // Close the form after successful submission
+      onClose();
+    } catch (error) {
+      console.error('Error adding course:', error);
+      // Handle error, e.g., show an error message
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <h2 className="text-xl font-semibold mb-4">Add New Course</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700">Course Name</label>
+            <input
+              type="text"
+              className="w-full px-3 py-2 border rounded"
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Teacher</label>
+            <input
+              type="text"
+              className="w-full px-3 py-2 border rounded"
+              value={teacher}
+              onChange={(e) => setTeacher(e.target.value)}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Link</label>
+            <input
+              type="text"
+              className="w-full px-3 py-2 border rounded"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Upload Image</label>
+            <input
+              type="file"
+              className="w-full px-3 py-2 border rounded"
+              onChange={(e) => setImage(e.target.files[0])}
+              required
+            />
+          </div>
+          <div className="flex justify-end">
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+              Add Course
+            </button>
+            <button type="button" className="ml-2 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400" onClick={onClose}>
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-  </div>
-);
+  );
+};
+
+const ColorPicker = () => {
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  return (
+    <div className="m-2 md:m-10 mt-24 p-2 md:p-10 bg-white rounded-3xl relative">
+      <Header category="App" title="Courses" />
+      <div className="absolute top-4 right-4">
+        <button
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          onClick={() => setIsFormOpen(true)}
+        >
+          Add Course
+        </button>
+      </div>
+      {isFormOpen && <AddCourseForm onClose={() => setIsFormOpen(false)} />}
+    </div>
+  );
+};
 
 export default ColorPicker;

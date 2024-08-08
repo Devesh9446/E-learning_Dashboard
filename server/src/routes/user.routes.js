@@ -43,7 +43,7 @@ router.route('/logOut').post(logOut_user)
 router.route('/courses').get(get_course)
 router.route('/courses').post(upload.fields([
     {
-        name:"course_image",
+        name:"image",
         maxCount:1
     }
 ])

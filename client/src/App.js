@@ -77,6 +77,7 @@ const App = () => {
                 <Route path="/Todo" element={<Todo />} />
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/color-picker" element={<ColorPicker />} />
+                <Route path="Live%20Classes" element={<ColorPicker />} />
 
                 {/* charts  */}
                 <Route path="/line" element={<Line />} />
