@@ -4,10 +4,10 @@ import { FiSettings } from 'react-icons/fi';
 import { TooltipComponent } from '@syncfusion/ej2-react-popups';
 
 import { Navbar, Footer, Sidebar, ThemeSettings } from './components';
-import { Ecommerce, Calendar, Instructors, Stacked, Pyramid, Learners, Todo, Line, Area, Bar, Pie, Financial, ColorPicker, ColorMapping} from './pages';
+import { Ecommerce, Calendar, Instructors, Stacked, Pyramid, Learners, Todo, Line, Area, Bar, Pie, Financial, Recorded_courses, ColorMapping} from './pages';
 import './App.css';
 
-import { useStateContext } from './contexts/ContextProvider';
+import { useStateContext } from './contexts/ContextProvider'; 
 
 const App = () => {
   const { setCurrentColor, setCurrentMode, currentMode, activeMenu, currentColor, themeSettings, setThemeSettings } = useStateContext();
@@ -76,8 +76,8 @@ const App = () => {
                 {/* apps  */}
                 <Route path="/Todo" element={<Todo />} />
                 <Route path="/calendar" element={<Calendar />} />
-                <Route path="/color-picker" element={<ColorPicker />} />
-                <Route path="Live%20Classes" element={<ColorPicker />} />
+                {/* <Route path="/color-picker" element={<ColorPicker />} /> */}
+                <Route path="Recorded%20Courses" element={<Recorded_courses />} />
 
                 {/* charts  */}
                 <Route path="/line" element={<Line />} />

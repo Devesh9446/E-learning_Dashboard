@@ -21,6 +21,14 @@ import {dashboard_details} from "../controllers/dashboard.controller.js"
 import {get_course} from "../controllers/recorded_courses.controller.js"
 import {create_course} from "../controllers/recorded_courses.controller.js"
 
+import { get_all_todos } from '../controllers/todo.controllers.js';
+import { get_todo_by_id } from '../controllers/todo.controllers.js';
+import { create_todo } from '../controllers/todo.controllers.js';
+import { update_todo } from '../controllers/todo.controllers.js';
+import { delete_todo } from '../controllers/todo.controllers.js';
+import { get_todos_by_status } from '../controllers/todo.controllers.js';
+import { update_todo_status } from '../controllers/todo.controllers.js';
+
 const router =Router()
 
 router.route('/learner').post(add_learners) 
@@ -49,6 +57,12 @@ router.route('/courses').post(upload.fields([
 ])
 ,create_course) 
 
-
+router.get('/todos', get_all_todos);
+router.get('/todos/status/:status', get_todos_by_status);
+router.get('/todos/:id', get_todo_by_id);
+router.post('/todos', create_todo);
+router.put('/todos/:id', update_todo);
+router.put('/todos/:id/status', update_todo_status);
+router.delete('/todos/:id', delete_todo);
 
 export default router

@@ -81,8 +81,6 @@ const Ecommerce = () => {
 
     setStudentGraphData(calculateTotalIncome(StudentIncome));
     setTeacherGraphData(calculateTotalIncome(TeacherIncome));
-    console.log(studentGraphData)
-    console.log(teacherGraphData)
   }, [StudentIncome, TeacherIncome]);
 
   return (

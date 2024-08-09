@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Header } from '../components';
 
-const AddCourseForm = ({ onClose }) => {
+const AddCourseForm = ({ onClose, fetchCourses }) => {
   const [course, setCourse] = useState('');
   const [teacher, setTeacher] = useState('');
   const [link, setLink] = useState('');
@@ -21,20 +21,21 @@ const AddCourseForm = ({ onClose }) => {
 
     try {
       // Send form data to the server
-      const response = await axios.post('http://localhost:8000/api/v1/users/courses', formData, {
+      await axios.post('http://localhost:8000/api/v1/users/courses', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      console.log('Course added:', response.data);
-      // Handle success, e.g., show a success message or reset form
+      console.log('Course added successfully');
+      
+      // Fetch courses again after adding a new one
+      fetchCourses();
 
       // Close the form after successful submission
       onClose();
     } catch (error) {
       console.error('Error adding course:', error);
-      // Handle error, e.g., show an error message
     }
   };
 
@@ -95,8 +96,29 @@ const AddCourseForm = ({ onClose }) => {
   );
 };
 
-const ColorPicker = () => {
-  const [isFormOpen, setIsFormOpen] = useState(false);
+const Recorded_courses = () => {
+  const [isFormOpen, setIsFormOpen] = useState(false); 
+  const [courses, setCourses] = useState([]);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/v1/users/courses');
+      if (Array.isArray(response.data.data)) {
+        setCourses(response.data.data);
+        console.log(courses);
+      } else {
+        console.error('Unexpected data format:', response.data);
+        setCourses([]); 
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      setCourses([]); 
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
   return (
     <div className="m-2 md:m-10 mt-24 p-2 md:p-10 bg-white rounded-3xl relative">
@@ -109,9 +131,27 @@ const ColorPicker = () => {
           Add Course
         </button>
       </div>
-      {isFormOpen && <AddCourseForm onClose={() => setIsFormOpen(false)} />}
+      {isFormOpen && <AddCourseForm onClose={() => setIsFormOpen(false)} fetchCourses={fetchCourses} />}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+        {Array.isArray(courses) && courses.length > 0 ? (
+          courses.map((course) => (
+            <div key={course._id} className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <a href={course.link} target="_blank" rel="noopener noreferrer">
+                <img src={course.image} alt={course.course} className="w-full h-48 object-cover" />
+              </a>
+              <div className="p-4">
+                <h3 className="text-lg font-semibold">{course.course}</h3>
+                <p className="text-gray-600">{course.teacher}</p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>No courses available</p>
+        )}
+      </div>
     </div>
   );
 };
 
-export default ColorPicker;
+export default Recorded_courses;

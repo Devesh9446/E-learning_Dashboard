@@ -3172,7 +3172,7 @@ export const kanbanData = [
     Estimate: 3.5,
     Assignee: 'Nancy Davloio',
     RankId: 1,
-    Color: '#02897B',
+    Color: '#02897B', 
     ClassName: 'e-story, e-low, e-nancy-davloio',
   },
   {
