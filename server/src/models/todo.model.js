@@ -12,6 +12,7 @@ const todo_Schema=new mongoose.Schema({
     status:{
         type:String,
         required:true,
+        enum:["To Do","In Progress","Done"],
     }
 },{timestamps:true})
 
