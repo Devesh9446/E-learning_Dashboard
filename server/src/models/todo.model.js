@@ -1,21 +1,19 @@
 import mongoose from 'mongoose'
 
-const course_schema=new mongoose.Schema({
-    course:{
+const todo_Schema=new mongoose.Schema({
+    task:{
         type:String,
         required:true,
     },
-    teacher:{
-        type:String,
-    },
-    link:{
+    summary:{
         type:String,
         required:true,
     },
-    image:{
+    status:{
         type:String,
         required:true,
+        enum:["To Do","In Progress","Done"],
     }
 },{timestamps:true})
- 
-export const recorded_courses= mongoose.model("recorded_courses",course_schema)
+
+export const todo=mongoose.model("todo",todo_Schema)

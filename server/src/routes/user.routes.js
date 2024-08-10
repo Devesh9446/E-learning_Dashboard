@@ -21,6 +21,11 @@ import {dashboard_details} from "../controllers/dashboard.controller.js"
 import {get_course} from "../controllers/recorded_courses.controller.js"
 import {create_course} from "../controllers/recorded_courses.controller.js"
 
+import { get_all_todos } from '../controllers/todo.controllers.js';
+import { create_todo } from '../controllers/todo.controllers.js';
+import { update_todo } from '../controllers/todo.controllers.js';
+import { delete_todo } from '../controllers/todo.controllers.js';
+
 const router =Router()
 
 router.route('/learner').post(add_learners) 
@@ -43,12 +48,15 @@ router.route('/logOut').post(logOut_user)
 router.route('/courses').get(get_course)
 router.route('/courses').post(upload.fields([
     {
-        name:"course_image",
+        name:"image",
         maxCount:1
     }
 ])
 ,create_course) 
 
-
+router.get('/todos', get_all_todos);
+router.post('/todos', create_todo);
+router.put('/todos/:id', update_todo);
+router.delete('/todos/:id', delete_todo);
 
 export default router

@@ -16,12 +16,12 @@ const get_course = asyncHandler(async (req, res) => {
 const create_course = asyncHandler(async (req, res) => {
     const { course, link, teacher } = req.body;
 
-    const course_image_Path=req.files?.course_image[0]?.path
-    if(!course_image_Path){
-        throw new apiError(400,"course_image is required")
+    console.log(req.files);
+    const image_Path=req.files?.image[0]?.path
+    if(!image_Path){
+        throw new apiError(400,"image is required")
     }
-    console.log("course_image path:",course_image_Path)
-    const course_image=await uploadOnCloudinary(course_image_Path) 
+    const course_image=await uploadOnCloudinary(image_Path) 
     if(!course_image){
         throw new apiError(400,"course_image is requied")
     }
@@ -34,7 +34,8 @@ const create_course = asyncHandler(async (req, res) => {
         const data = new recorded_courses({
             course,
             link,
-            teacher
+            teacher,
+            image:course_image.url
         });
         const resp = await data.save();
         res.status(200).json(new apiResponse(200, resp, "Course created successfully"));

@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-const learners_schema=new mongoose.Schema({
+const live_course_schema=new mongoose.Schema({
     startTime:{
 
     },
@@ -10,4 +10,4 @@ const learners_schema=new mongoose.Schema({
 
 },{timestamps:true})
 
-export const learners = mongoose.model("learner",learners_schema)
+export const live_course = mongoose.model("learner",live_course_schema)
