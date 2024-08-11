@@ -3,8 +3,11 @@ import { BsCurrencyDollar } from 'react-icons/bs';
 import { GoPrimitiveDot } from 'react-icons/go';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { Stacked, Button, SparkLine } from '../components';
-import { earningData, recentTransactions, dropdownData, SparklineAreaData } from '../data/dummy';
+import { recentTransactions, dropdownData, SparklineAreaData } from '../data/dummy';
 import { useStateContext } from '../contexts/ContextProvider';
+import { MdOutlineSupervisorAccount } from 'react-icons/md';
+import { BsBoxSeam } from 'react-icons/bs'; 
+import { FiBarChart } from 'react-icons/fi'; 
 import axios from 'axios';
 
 const DropDown = ({ currentMode }) => (
@@ -26,24 +29,62 @@ const Ecommerce = () => {
 
   const [StudentIncome, setStudentIncome] = useState([]);
   const [TeacherIncome, setTeacherIncome] = useState([]);
-  const [studentGraphData, setStudentGraphData] = useState([]);
-  const [teacherGraphData, setTeacherGraphData] = useState([]);
   const [earnings, setEarnings] = useState(0); 
   const [learners, setLearners] = useState([]);
   const [instructors, setInstructors] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [Budget,setBudget]=useState(0);
+  const [Expense,setExpense]=useState(0);
+  const [stackedChartData,SetstackedChartData]=useState([]);
+  const earningData = [
+    {
+      icon: <MdOutlineSupervisorAccount />,
+      amount:`${learners}`,
+      title: 'Learners',
+      iconColor: '#03C9D7',
+      iconBg: '#E5FAFB',
+      pcColor: 'red-600',
+    },
+    {
+      icon: <BsBoxSeam />,
+      amount: `${instructors}`,
+      title: 'Instructors',
+      iconColor: 'rgb(255, 244, 229)',
+      iconBg: 'rgb(254, 201, 15)',
+      pcColor: 'green-600',
+    },
+    { 
+      icon: <FiBarChart />,
+      amount: `${courses}`,
+      title: 'Courses',
+      iconColor: 'rgb(228, 106, 118)',
+      iconBg: 'rgb(255, 244, 229)',
+  
+      pcColor: 'green-600',
+    },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const incomeResponse = await axios.get('http://localhost:8000/api/v1/users/income/2024');
         if (incomeResponse.data && incomeResponse.data.data) {
-          setStudentIncome(incomeResponse.data.data.student_income);
-          setTeacherIncome(incomeResponse.data.data.teacher_income);
+          const studentIncome = incomeResponse.data.data.student_income;
+          const teacherIncome = incomeResponse.data.data.teacher_income;
+  
+          setStudentIncome(studentIncome);
+          setTeacherIncome(teacherIncome);
+  
+          const totalStudentIncome = studentIncome.reduce((total, income) => total + income.income, 0);
+          const totalTeacherIncome = teacherIncome.reduce((total, income) => total + income.income, 0);
+          const totalEarnings = totalStudentIncome + totalTeacherIncome;
+          setBudget(totalStudentIncome);
+          setExpense(totalTeacherIncome);
+          setEarnings(totalEarnings); 
         } else {
           console.error('Income data is not found in the response');
         }
-
+  
         const dashboardResponse = await axios.get('http://localhost:8000/api/v1/users/dashboard');
         if (dashboardResponse.data && dashboardResponse.data.data) {
           const { learners, teachers, courses } = dashboardResponse.data.data;
@@ -57,31 +98,34 @@ const Ecommerce = () => {
         console.error('Error fetching data:', error);
       }
     };
-
+  
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const calculateTotalIncome = (data) => {
-      const incomeByMonth = data.reduce((acc, curr) => {
-        const { month, income } = curr;
-        if (!acc[month]) {
-          acc[month] = 0;
-        }
-        acc[month] += income;
-        return acc;
-      }, {});
+ useEffect(() => {
+  const calculateTotalIncome = (data) => {
+    const incomeByMonth = data.reduce((acc, curr) => {
+      const { month, income } = curr;
+      if (!acc[month]) {
+        acc[month] = 0;
+      }
+      acc[month] += income;
+      return acc;
+    }, {});
 
-      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      return monthNames.map((month) => ({
-        x: month,
-        y: incomeByMonth[month] || 0,
-      }));
-    };
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return monthNames.map((month) => ({
+      x: month,
+      y: incomeByMonth[month] || 0,
+    }));
+  };
 
-    setStudentGraphData(calculateTotalIncome(StudentIncome));
-    setTeacherGraphData(calculateTotalIncome(TeacherIncome));
-  }, [StudentIncome, TeacherIncome]);
+  const updatedStudentGraphData = calculateTotalIncome(StudentIncome);
+  const updatedTeacherGraphData = calculateTotalIncome(TeacherIncome);
+
+  SetstackedChartData([updatedStudentGraphData, updatedTeacherGraphData]);
+}, [StudentIncome, TeacherIncome]);
+
 
   return (
     <div className="mt-24 px-4">
@@ -89,7 +133,7 @@ const Ecommerce = () => {
         <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg h-44 rounded-xl p-4 shadow-lg flex items-center justify-between">
           <div>
             <p className="font-bold text-gray-400">Earnings</p>
-            <p className="text-2xl">${earnings.toLocaleString()}</p> 
+            <p className="text-2xl">₹{earnings}</p> 
           </div>
           <button
             type="button"
@@ -137,15 +181,12 @@ const Ecommerce = () => {
           <div className="flex-1 pr-4">
             <div>
               <p>
-                <span className="text-3xl font-semibold">$93,438</span>
-                <span className="p-1.5 hover:drop-shadow-xl cursor-pointer rounded-full text-white bg-green-400 ml-3 text-xs">
-                  23%
-                </span>
+                <span className="text-3xl font-semibold">₹{Budget}</span>
               </p>
               <p className="text-gray-500 mt-1">Budget</p>
             </div>
             <div className="mt-8">
-              <p className="text-3xl font-semibold">$48,487</p>
+              <p className="text-3xl font-semibold">₹{Expense}</p>
               <p className="text-gray-500 mt-1">Expense</p>
             </div>
             <div className="mt-5">
@@ -154,7 +195,7 @@ const Ecommerce = () => {
                 id="line-sparkLine" 
                 type="Line" 
                 height="80px" 
-                width="100%"  // Full width
+                width="100%" 
                 data={SparklineAreaData} 
                 color={currentColor} 
               />
@@ -171,8 +212,9 @@ const Ecommerce = () => {
           <div className="flex-1">
             <Stacked 
               currentMode={currentMode} 
-              width="100%" // Full width
+              width="100%" 
               height="360px" 
+              stackedChartData={stackedChartData} 
             />
           </div>
         </div>
