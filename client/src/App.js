@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { FiSettings } from 'react-icons/fi';
 import { TooltipComponent } from '@syncfusion/ej2-react-popups';
 
 import { Navbar, Footer, Sidebar, ThemeSettings } from './components';
-import { Ecommerce, Calendar, Instructors, Stacked, Pyramid, Learners, Todo, Line, Area, Bar, Pie, Financial, Recorded_courses, ColorMapping} from './pages';
+import { Ecommerce, Calendar, Instructors, Stacked, Pyramid, Learners, Todo, Line, Area, Bar, Pie, Financial, Recorded_courses, Live_Classes, ColorMapping } from './pages';
 import './App.css';
 
 import { useStateContext } from './contexts/ContextProvider'; 
@@ -19,6 +20,46 @@ const App = () => {
       setCurrentColor(currentThemeColor);
       setCurrentMode(currentThemeMode);
     }
+  }, []);
+
+  const [stackedChartData, setStackedChartData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/v1/users/income/2024');
+        if (response.data && response.data.data) {
+          const studentIncome = response.data.data.student_income;
+          const teacherIncome = response.data.data.teacher_income;
+
+          const calculateTotalIncome = (data) => {
+            const incomeByMonth = data.reduce((acc, curr) => {
+              const { month, income } = curr;
+              if (!acc[month]) {
+                acc[month] = 0;
+              }
+              acc[month] += income;
+              return acc;
+            }, {});
+
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return monthNames.map((month) => ({
+              x: month,
+              y: incomeByMonth[month] || 0,
+            }));
+          };
+
+          const updatedStudentGraphData = calculateTotalIncome(studentIncome);
+          const updatedTeacherGraphData = calculateTotalIncome(teacherIncome);
+
+          setStackedChartData([updatedStudentGraphData, updatedTeacherGraphData]);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -38,7 +79,6 @@ const App = () => {
               >
                 <FiSettings />
               </button>
-
             </TooltipComponent>
           </div>
           {activeMenu ? (
@@ -64,22 +104,17 @@ const App = () => {
               {themeSettings && (<ThemeSettings />)}
 
               <Routes>
-                {/* dashboard  */}
                 <Route path="/" element={(<Ecommerce />)} />
-                <Route path="/E-learning" element={(<Ecommerce />)} />
+                <Route path="/e-learning" element={(<Ecommerce />)} />
 
-                {/* pages  */}
-                {/* <Route path="/orders" element={<Orders />} /> */}
                 <Route path="/instructors" element={<Instructors />} /> 
                 <Route path="/learners" element={<Learners />} />
 
-                {/* apps  */}
-                <Route path="/Todo" element={<Todo />} />
+                <Route path="/todo" element={<Todo />} />
                 <Route path="/calendar" element={<Calendar />} />
-                {/* <Route path="/color-picker" element={<ColorPicker />} /> */}
                 <Route path="Recorded%20Courses" element={<Recorded_courses />} />
-
-                {/* charts  */}
+                <Route path="Live%20Classes" element={<Live_Classes />} />
+                
                 <Route path="/line" element={<Line />} />
                 <Route path="/area" element={<Area />} />
                 <Route path="/bar" element={<Bar />} />
@@ -87,7 +122,7 @@ const App = () => {
                 <Route path="/financial" element={<Financial />} />
                 <Route path="/color-mapping" element={<ColorMapping />} />
                 <Route path="/pyramid" element={<Pyramid />} />
-                <Route path="/stacked" element={<Stacked />} />
+                <Route path="/stacked" element={<Stacked stackedChartData={stackedChartData} />} />
 
               </Routes>
             </div>

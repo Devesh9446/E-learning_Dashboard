@@ -3,23 +3,23 @@ import { BsCurrencyDollar } from 'react-icons/bs';
 import { GoPrimitiveDot } from 'react-icons/go';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { Stacked, Button, SparkLine } from '../components';
-import { recentTransactions, dropdownData, SparklineAreaData } from '../data/dummy';
+import { dropdownData } from '../data/dummy';
 import { useStateContext } from '../contexts/ContextProvider';
 import { MdOutlineSupervisorAccount } from 'react-icons/md';
-import { BsBoxSeam } from 'react-icons/bs'; 
-import { FiBarChart } from 'react-icons/fi'; 
+import { BsBoxSeam } from 'react-icons/bs';
+import { FiBarChart } from 'react-icons/fi';
 import axios from 'axios';
 
 const DropDown = ({ currentMode }) => (
   <div className="w-28 border-1 border-color px-2 py-1 rounded-md">
-    <DropDownListComponent 
-      id="time" 
-      fields={{ text: 'Time', value: 'Id' }} 
-      style={{ border: 'none', color: currentMode === 'Dark' ? 'white' : 'black' }} 
-      value="1" 
-      dataSource={dropdownData} 
-      popupHeight="220px" 
-      popupWidth="120px" 
+    <DropDownListComponent
+      id="time"
+      fields={{ text: 'Time', value: 'Id' }}
+      style={{ border: 'none', color: currentMode === 'Dark' ? 'white' : 'black' }}
+      value="1"
+      dataSource={dropdownData}
+      popupHeight="220px"
+      popupWidth="120px"
     />
   </div>
 );
@@ -29,17 +29,20 @@ const Ecommerce = () => {
 
   const [StudentIncome, setStudentIncome] = useState([]);
   const [TeacherIncome, setTeacherIncome] = useState([]);
-  const [earnings, setEarnings] = useState(0); 
+  const [earnings, setEarnings] = useState(0);
   const [learners, setLearners] = useState([]);
   const [instructors, setInstructors] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [Budget,setBudget]=useState(0);
-  const [Expense,setExpense]=useState(0);
-  const [stackedChartData,SetstackedChartData]=useState([]);
+  const [Budget, setBudget] = useState(0);
+  const [Expense, setExpense] = useState(0);
+  const [stackedChartData, SetstackedChartData] = useState([]);
+  const [SparklineAreaData, setsparklineAreaData] = useState([]);
+  const [recent, setrecent] = useState([]);
+
   const earningData = [
     {
       icon: <MdOutlineSupervisorAccount />,
-      amount:`${learners}`,
+      amount: `${learners}`,
       title: 'Learners',
       iconColor: '#03C9D7',
       iconBg: '#E5FAFB',
@@ -53,13 +56,13 @@ const Ecommerce = () => {
       iconBg: 'rgb(254, 201, 15)',
       pcColor: 'green-600',
     },
-    { 
+    {
       icon: <FiBarChart />,
       amount: `${courses}`,
       title: 'Courses',
       iconColor: 'rgb(228, 106, 118)',
       iconBg: 'rgb(255, 244, 229)',
-  
+
       pcColor: 'green-600',
     },
   ];
@@ -67,65 +70,84 @@ const Ecommerce = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const incomeResponse = await axios.get('http://localhost:8000/api/v1/users/income/2024');
+        const today = new Date().toISOString();
+        const incomeResponse = await axios.get(`http://localhost:8000/api/v1/users/income/2024`);
         if (incomeResponse.data && incomeResponse.data.data) {
           const studentIncome = incomeResponse.data.data.student_income;
           const teacherIncome = incomeResponse.data.data.teacher_income;
-  
+
           setStudentIncome(studentIncome);
           setTeacherIncome(teacherIncome);
-  
+
           const totalStudentIncome = studentIncome.reduce((total, income) => total + income.income, 0);
           const totalTeacherIncome = teacherIncome.reduce((total, income) => total + income.income, 0);
-          const totalEarnings = totalStudentIncome + totalTeacherIncome;
+          const totalEarnings = totalStudentIncome - totalTeacherIncome;
           setBudget(totalStudentIncome);
           setExpense(totalTeacherIncome);
-          setEarnings(totalEarnings); 
+          setEarnings(totalEarnings);
         } else {
           console.error('Income data is not found in the response');
         }
-  
+
         const dashboardResponse = await axios.get('http://localhost:8000/api/v1/users/dashboard');
         if (dashboardResponse.data && dashboardResponse.data.data) {
           const { learners, teachers, courses } = dashboardResponse.data.data;
           setLearners(learners || []);
-          setInstructors(teachers || []); 
+          setInstructors(teachers || []);
           setCourses(courses || []);
         } else {
           console.error('Dashboard data is not found in the response');
+        }
+
+        const graphResponse = await axios.get(`http://localhost:8000/api/v1/users/days/${today}`);
+        if (graphResponse.data && graphResponse.data.data) {
+          setsparklineAreaData(graphResponse.data.data);
+        } else {
+          console.error('Graph data is not found in the response');
+        }
+
+        const recentResponse = await axios.get('http://localhost:8000/api/v1/users/recent');
+        if (recentResponse.data && recentResponse.data.data) {
+          setrecent(recentResponse.data.data);
+        } else {
+          console.error('Recent data is not found in the response');
         }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-  
+
     fetchData();
   }, []);
 
- useEffect(() => {
-  const calculateTotalIncome = (data) => {
-    const incomeByMonth = data.reduce((acc, curr) => {
-      const { month, income } = curr;
-      if (!acc[month]) {
-        acc[month] = 0;
-      }
-      acc[month] += income;
-      return acc;
-    }, {});
 
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    return monthNames.map((month) => ({
-      x: month,
-      y: incomeByMonth[month] || 0,
-    }));
-  };
+  useEffect(() => {
+    const calculateTotalIncome = (data) => {
+      const incomeByMonth = data.reduce((acc, curr) => {
+        const { month, income } = curr;
+        if (!acc[month]) {
+          acc[month] = 0;
+        }
+        acc[month] += income;
+        return acc;
+      }, {});
 
-  const updatedStudentGraphData = calculateTotalIncome(StudentIncome);
-  const updatedTeacherGraphData = calculateTotalIncome(TeacherIncome);
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return monthNames.map((month) => ({
+        x: month,
+        y: incomeByMonth[month] || 0,
+      }));
+    };
 
-  SetstackedChartData([updatedStudentGraphData, updatedTeacherGraphData]);
-}, [StudentIncome, TeacherIncome]);
+    const updatedStudentGraphData = calculateTotalIncome(StudentIncome);
+    const updatedTeacherGraphData = calculateTotalIncome(TeacherIncome);
 
+    SetstackedChartData([updatedStudentGraphData, updatedTeacherGraphData]);
+  }, [StudentIncome, TeacherIncome]);
+
+  useEffect(() => {
+    console.log('Updated Recent Data:', recent);
+  }, [recent]);
 
   return (
     <div className="mt-24 px-4">
@@ -133,7 +155,7 @@ const Ecommerce = () => {
         <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg h-44 rounded-xl p-4 shadow-lg flex items-center justify-between">
           <div>
             <p className="font-bold text-gray-400">Earnings</p>
-            <p className="text-2xl">₹{earnings}</p> 
+            <p className="text-2xl">₹{earnings}</p>
           </div>
           <button
             type="button"
@@ -170,7 +192,7 @@ const Ecommerce = () => {
             <p className="flex items-center gap-2 text-gray-600 hover:drop-shadow-xl">
               <GoPrimitiveDot />
               <span>Instructors</span>
-            </p> 
+            </p>
             <p className="flex items-center gap-2 text-green-400 hover:drop-shadow-xl">
               <GoPrimitiveDot />
               <span>Learners</span>
@@ -190,14 +212,14 @@ const Ecommerce = () => {
               <p className="text-gray-500 mt-1">Expense</p>
             </div>
             <div className="mt-5">
-              <SparkLine 
-                currentColor={currentColor} 
-                id="line-sparkLine" 
-                type="Line" 
-                height="80px" 
-                width="100%" 
-                data={SparklineAreaData} 
-                color={currentColor} 
+              <SparkLine
+                currentColor={currentColor}
+                id="line-sparkLine"
+                type="Line"
+                height="80px"
+                width="100%"
+                data={SparklineAreaData}
+                color={currentColor}
               />
             </div>
             <div className="mt-6">
@@ -205,49 +227,54 @@ const Ecommerce = () => {
                 color="white"
                 bgColor={currentColor}
                 text="Download Report"
-                borderRadius="10px" 
+                borderRadius="10px"
               />
             </div>
           </div>
           <div className="flex-1">
-            <Stacked 
-              currentMode={currentMode} 
-              width="100%" 
-              height="360px" 
-              stackedChartData={stackedChartData} 
+            <Stacked
+              currentMode={currentMode}
+              width="100%"
+              height="360px"
+              stackedChartData={stackedChartData}
             />
           </div>
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4 m-4">
-        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg p-4 rounded-2xl shadow-lg w-full">
-          <div className="flex justify-between items-center gap-2 mb-4">
-            <p className="text-xl font-semibold">Recent Transactions</p>
-            <DropDown currentMode={currentMode} />
-          </div>
-          <div className="mt-6 w-full">
-            {recentTransactions.map((item) => (
-              <div key={item.title} className="flex justify-between items-center mt-4">
-                <div className="flex gap-4">
-                  <button
-                    type="button"
-                    style={{ color: item.iconColor, backgroundColor: item.iconBg }}
-                    className="text-2xl opacity-0.9 rounded-full p-4 hover:drop-shadow-xl"
-                  >
-                    {item.icon}
-                  </button>
-                  <div>
-                    <p className="text-md font-semibold">{item.title}</p>
-                    <p className="text-sm text-gray-400">{item.desc}</p>
-                  </div>
-                </div>
-                <p className={`text-${item.pcColor}`}>{item.amount}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg p-4 m-3 rounded-2xl shadow-lg">
+  <div className="flex justify-between items-center mb-4">
+    <p className="font-semibold text-xl">Recent Transactions</p>
+  </div>
+
+  {recent.length > 0 ? (
+    <table className="min-w-full bg-white dark:bg-secondary-dark-bg">
+      <thead>
+        <tr> 
+          <th className="text-left py-2 px-4 border-b dark:border-gray-700">Name</th>
+          <th className="text-left py-2 px-4 border-b dark:border-gray-700">Course</th>
+          <th className="text-left py-2 px-4 border-b dark:border-gray-700">Contact</th>
+          <th className="text-left py-2 px-4 border-b dark:border-gray-700">Email</th>
+          <th className="text-left py-2 px-4 border-b dark:border-gray-700">Fee</th>
+        </tr>
+      </thead>
+      <tbody>
+        {recent.map((item, index) => (
+          <tr key={index} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+            <td className="py-2 px-4 border-b dark:border-gray-700">{item.name}</td>
+            <td className="py-2 px-4 border-b dark:border-gray-700">{item.course}</td>
+            <td className="py-2 px-4 border-b dark:border-gray-700">{item.contact}</td>
+            <td className="py-2 px-4 border-b dark:border-gray-700">{item.email}</td>
+            <td className="py-2 px-4 border-b dark:border-gray-700">₹{item.fee}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : (
+    <p className="text-gray-500 dark:text-gray-400">No recent transactions available</p>
+  )}
+</div>
+
     </div>
   );
 };

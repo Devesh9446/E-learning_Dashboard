@@ -16,7 +16,9 @@ import {signUp_user} from '../controllers/login.controller.js'
 import {logOut_user} from '../controllers/login.controller.js'
 
 import {get_income} from "../controllers/dashboard.controller.js"  
+import {days_span} from '../controllers/dashboard.controller.js'
 import {dashboard_details} from "../controllers/dashboard.controller.js" 
+import {recent_addition} from "../controllers/dashboard.controller.js" 
 
 import {get_course} from "../controllers/recorded_courses.controller.js"
 import {create_course} from "../controllers/recorded_courses.controller.js"
@@ -39,7 +41,9 @@ router.route('/teacher').delete(delete_teacher)
 router.route('/teacher/:id').put(update_teacher);
 
 router.route('/income/:year').get(get_income)
+router.route('/days/:date').get(days_span)
 router.route('/dashboard').get(dashboard_details)
+router.route('/recent').get(recent_addition)
 
 router.route('/login').post(login_user)
 router.route('/signUp').post(signUp_user)

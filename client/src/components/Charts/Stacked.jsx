@@ -26,12 +26,12 @@ const Stacked = ({ width, height, stackedChartData }) => {
     lineStyle: { width: 0 }, 
     labelIntersectAction: 'Rotate45',
     valueType: 'Category',
-  };
+  }; 
 
   const stackedPrimaryYAxis = {
     lineStyle: { width: 0 },
     minimum: 0,
-    maximum: maxYValue + 50, 
+    maximum: maxYValue + 100, 
     interval: Math.ceil((maxYValue + 50) / 4) || 10,
     majorTickLines: { width: 0 },
     majorGridLines: { width: 1 },
